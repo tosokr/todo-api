@@ -1,19 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using TodoApi.Models;
+using Microsoft.Identity.Web;
 
-namespace TodoApi
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
+namespace TodoListService
 {
     public class Startup
     {
@@ -27,8 +24,15 @@ namespace TodoApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<TodoContext>(opt =>
-               opt.UseInMemoryDatabase("TodoList"));
+            // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
+            // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
+            // 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles'
+            // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
+            // JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+            // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
+            services.AddProtectedWebApi(Configuration);
+
             services.AddControllers();
         }
 
@@ -37,14 +41,22 @@ namespace TodoApi
         {
             if (env.IsDevelopment())
             {
+                // Since IdentityModel version 5.2.1 (or since Microsoft.AspNetCore.Authentication.JwtBearer version 2.2.0),
+                // PII hiding in log files is enabled by default for GDPR concerns.
+                // For debugging/development purposes, one can enable additional detail in exceptions by setting IdentityModelEventSource.ShowPII to true.
+                // Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
                 app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-
+            
             app.UseRouting();
-
-            app.UseAuthorization();
+           // app.UseAuthentication();
+           // app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
