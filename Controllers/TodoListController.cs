@@ -78,7 +78,7 @@ namespace TodoListService.Controllers
         public IActionResult Post([FromBody] Todo todo)
         {
             int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
-            Todo todonew = new Todo() { Id = id, Owner = HttpContext.User.Identity.Name, Title = todo.Title };
+            Todo todonew = new Todo() { Id = id, Owner = todo.Owner, Title = todo.Title };
             TodoStore.Add(id, todonew);
 
             return Ok(todo);
