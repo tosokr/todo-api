@@ -47,8 +47,8 @@ namespace TodoListService.Controllers
             // Pre-populate with sample data
             if (TodoStore.Count == 0)
             {
-                TodoStore.Add(1, new Todo() { Id = 1, Owner = $"{this._contextAccessor.HttpContext.User.Identity.Name}", Title = "Pick up groceries" });
-                TodoStore.Add(2, new Todo() { Id = 2, Owner = $"{this._contextAccessor.HttpContext.User.Identity.Name}", Title = "Finish invoice report" });
+                TodoStore.Add(1, new Todo() { Id = 1, Owner = "Mr.Brown", Title = "Pick up groceries" });
+                TodoStore.Add(2, new Todo() { Id = 2, Owner = "Mr.Yellow", Title = "Finish invoice report" });
             }
         }
 
@@ -56,8 +56,9 @@ namespace TodoListService.Controllers
         [HttpGet]
         public IEnumerable<Todo> Get()
         {
-            string owner = User.Identity.Name;
-            return TodoStore.Values.Where(x => x.Owner == owner);
+            //string owner = User.Identity.Name;
+            //return TodoStore.Values.Where(x => x.Owner == owner);
+            return TodoStore.Values;
         }
 
         // GET: api/values
